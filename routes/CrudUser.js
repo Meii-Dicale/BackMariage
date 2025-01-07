@@ -31,8 +31,8 @@ bdd.query(createUser, [req.body.NameUser, req.body.TelUser, req.body.MailUser, r
 
 // Modifier les informations d'un utilisateur (Pour le moment obligé de remettre toutes les informations)
 router.put("/ModifyUser/:IdUser", (req, res) => {
-const modifyUser = "UPDATE User SET NameUser=?, TelUser=?, MailUser=?, RelationUser=?, PasswordUser=? WHERE IdUser=?"
-bdd.query(modifyUser, [req.body.NameUser, req.body.TelUser, req.body.MailUser, req.body.RelationUser, req.body.PasswordUser, req.params.IdUser], (err, result) => {
+const modifyUser = "UPDATE User SET NameUser=?, TelUser=?, MailUser=?, RelationUser=? WHERE IdUser=?"
+bdd.query(modifyUser, [req.body.NameUser, req.body.TelUser, req.body.MailUser, req.body.RelationUser, req.params.IdUser], (err, result) => {
     if(err) throw err;
     res.send({ message: "User modifié avec succès"});
 })
