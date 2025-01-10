@@ -4,6 +4,29 @@ const bdd = require('../config/bdd');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = process.env.SECRET_KEY ;
+////////////////////////////////////////////////////////////////////////
+// L'authentication//
+////////////////////////////////////////////////////////////////////////
+
+const authenticateToken = (req, res, next) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    console.log('token' + token);
+    if (!token) return res.status(401).json({ error: 'Token manquant' });
+
+    try {
+        const decoded = jwt.verify(token, SECRET_KEY);
+        req.user = decoded; // Stocke les données du token dans req.user
+        next();
+    } catch (err) {
+        res.status(403).json({ error: 'Token invalide' });
+        console.error(err);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////
+
 // PUBLIC MEDIA = 1 >>> Photo uniquement pour les mariés //
 // Configuration de Multer pour plusieurs fichiers
 const storage = multer.diskStorage({
@@ -26,7 +49,7 @@ router.get("/images/:imageName", (req, res) => {
 });
 
 // Route pour uploader plusieurs photos
-router.post('/upload', upload.array("files", 100), (req, res) => {
+router.post('/upload', authenticateToken, upload.array("files", 100), (req, res) => {
     if (!req.files || req.files.length === 0) {
         return res.status(400).json({ error: "No files uploaded" });
     }
@@ -57,9 +80,9 @@ router.post('/upload', upload.array("files", 100), (req, res) => {
 
 
 router.get("/PhotoPublique", (req, res) => {
-  const getPhotoPublique = "SELECT Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE PublicMedia = 0";
+  const getPhotoPublique = "SELECT Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE PublicMedia = 0 AND User.RoleUser= 0";
   bdd.query(getPhotoPublique, (err, result) => {
-      if(err) throw err;
+      if(err) throw err;  
       res.send(result);
   })
   
@@ -67,12 +90,60 @@ router.get("/PhotoPublique", (req, res) => {
 
 // Route pour récupérer toutes les photos privées
 
-router.get("/PhotoPrivee", (req, res) => {
-  const getPhotoPrivee = "SELECT Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE PublicMedia = 1";
+router.get("/PhotoPrivee", authenticateToken,(req, res) => {
+  const getPhotoPrivee = "SELECT Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE PublicMedia = 1 ";
   bdd.query(getPhotoPrivee, (err, result) => {
       if(err) throw err;
       res.send(result);
   })
 });
+
+// Route pour récupérer les photos de l'admin (pour la catgorie Photographe)
+
+router.get("/PhotoAdmin",(req, res) => {
+  const getPhotoAdmin = "SELECT Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE  User.RoleUser= 1";
+  bdd.query(getPhotoAdmin, (err, result) => {
+      if(err) throw err;
+      res.send(result);
+  })
+});
+
+// Route pour supprimer une photo
+
+router.delete("/DeletePhoto/:IdMedia", authenticateToken,(req, res) => {
+    const findPhoto = "select PathMedia from Media where IdMedia = ? "
+    bdd.query(findPhoto, [req.params.IdMedia], (err, result) => {
+        const filePath = path.join(__dirname, `..${result[0].PathMedia}`); 
+        try {
+            fs.unlinkSync(filePath);
+            console.log('Fichier supprimé avec succès');
+          } catch (err) {
+            console.error('Erreur lors de la suppression du fichier :', err);
+          }
+    })
+
+  const deletePhoto = "DELETE FROM Media WHERE IdMedia=?";
+  bdd.query(deletePhoto, [req.params.IdMedia], (err, result) => {
+      if(err) throw err;
+      res.send({ message: "Photo supprimée avec succès"});
+  })
+});
+
+
+
+// Route pour récupérer les photos d'un utilisateur
+
+router.get("/UserPhoto/:IdUser", (req, res) => {
+  const getUserPhoto = "SELECT Media.PublicMedia, Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE User.IdUser=?";
+  bdd.query(getUserPhoto, [req.params.IdUser], (err, result) => {
+      if(err) throw err;
+      res.send(result);
+  })
+});
+
+
+
+
+
 
 module.exports = router;
