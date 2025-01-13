@@ -134,7 +134,8 @@ router.delete("/DeletePhoto/:IdMedia", authenticateToken,(req, res) => {
 // Route pour récupérer les photos d'un utilisateur
 
 router.get("/UserPhoto/:IdUser", (req, res) => {
-  const getUserPhoto = "SELECT Media.PublicMedia, Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE User.IdUser=?";
+    
+  const getUserPhoto = "SELECT Media.PublicMedia, Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE User.IdUser=? AND PublicMedia = 0";
   bdd.query(getUserPhoto, [req.params.IdUser], (err, result) => {
       if(err) throw err;
       res.send(result);
