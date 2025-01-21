@@ -184,7 +184,7 @@ router.post("/SendMail", async (req, res) => {
         }
         
         const IdUser = resultUser[0].IdUser; // Récupération de l'ID utilisateur
-        const token = jwt.sign({ IdUser }, SECRET_KEY, { expiresIn: '1h' }); // Génération du token sécurisé
+        const token = jwt.sign({ IdUser }, SECRET_KEY, { expiresIn: '10min' }); // Génération du token sécurisé
         
         const resetLink = `http://${process.env.IP}/reset-password/${token}`; // URL contenant le token
         
@@ -203,7 +203,7 @@ router.post("/SendMail", async (req, res) => {
                 from: process.env.MAIL,
                 to: req.body.MailUser,
                 subject: "Récupération de votre mot de passe",
-                text: `Bonjour,\n\nVoici le lien pour réinitialiser votre mot de passe : ${resetLink}\n\nCe lien est valable pendant 1 heure.\n\nCordialement,\nL'équipe.`
+                text: `Bonjour,\n\nVoici le lien pour réinitialiser votre mot de passe : ${resetLink}\n\nCe lien est valable pendant 5 minutes.\n\nCordialement,\nLoreleï et Thomas, mari et femme `
             });
             
             console.log("Message sent: %s", info.messageId, resetLink);

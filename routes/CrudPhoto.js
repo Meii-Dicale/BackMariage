@@ -87,6 +87,25 @@ router.get("/PhotoPublique", (req, res) => {
   })
   
 });
+// Passer une photo en publique
+
+router.put("/PushPublic/:IdMedia", authenticateToken,(req, res) => {
+  const updatePubliquePhoto = "UPDATE Media SET PublicMedia = 0 WHERE IdMedia =?";
+  bdd.query(updatePubliquePhoto, [req.params.IdMedia], (err, result) => {
+      if(err) throw err;
+      res.status(200).json({ message: "Photo publique mise a jour avec succès" });
+  })
+});
+
+// Passer une photo en privé
+
+router.put("/PushPrivate/:IdMedia", authenticateToken,(req, res) => {
+  const updatePrivePhoto = "UPDATE Media SET PublicMedia = 1 WHERE IdMedia =?";
+  bdd.query(updatePrivePhoto, [req.params.IdMedia], (err, result) => {
+      if(err) throw err;
+      res.status(200).json({ message: "Photo privee mise a jour avec succès" });
+  })
+});
 
 // Route pour récupérer toutes les photos privées
 

@@ -8,6 +8,7 @@ const CrudUser = require('./routes/CrudUser')
 const CrudGuestBook = require('./routes/CrudGuestBook')
 const CrudPhoto = require('./routes/CrudPhoto')
 const CrudCommenaires = require('./routes/CrudCommenaires')
+const CrudFavoris = require('./routes/CrudFavoris')
 
 // MIDDLEWARE //
 app.use(cors({
@@ -32,6 +33,7 @@ app.use("/api/user", CrudUser );
 app.use("/api/GuestBook", CrudGuestBook)
 app.use("/api/Media", CrudPhoto)
 app.use("/api/Commentaire", CrudCommenaires)
+app.use("/api/Favoris", CrudFavoris)
 
 // PORT D ECOUTE //
 app.listen(3001, () => {
