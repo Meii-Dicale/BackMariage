@@ -12,7 +12,6 @@ const SECRET_KEY = process.env.SECRET_KEY ;
 
 const authenticateToken = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
-    console.log('token' + token);
     if (!token) return res.status(401).json({ error: 'Token manquant' });
 
     try {
@@ -87,6 +86,15 @@ router.get("/PhotoPublique", (req, res) => {
   })
   
 });
+
+router.get("/PhotoAllPublique", (req, res) => {
+    const getPhotoPublique = "SELECT Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser WHERE PublicMedia = 0 ";
+    bdd.query(getPhotoPublique, (err, result) => {
+        if(err) throw err;  
+        res.send(result);
+    })
+    
+  });
 // Passer une photo en publique
 
 router.put("/PushPublic/:IdMedia", authenticateToken,(req, res) => {
@@ -135,7 +143,6 @@ router.delete("/DeletePhoto/:IdMedia", authenticateToken,(req, res) => {
         const filePath = path.join(__dirname, `..${result[0].PathMedia}`); 
         try {
             fs.unlinkSync(filePath);
-            console.log('Fichier supprimé avec succès');
           } catch (err) {
             console.error('Erreur lors de la suppression du fichier :', err);
           }

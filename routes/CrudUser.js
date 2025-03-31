@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 const bdd = require('../config/bdd');
-    const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
 dotenv.config(); 
 const SECRET_KEY = process.env.SECRET_KEY ;
@@ -15,7 +15,6 @@ const nodemailer = require("nodemailer");
 
 const authenticateToken = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
-    console.log('token' + token);
     if (!token) return res.status(401).json({ error: 'Token manquant' });
 
     try {
@@ -81,7 +80,7 @@ const authenticateToken = (req, res, next) => {
 
             // Insertion dans la base de données
             const createUser =
-                "INSERT INTO User (NameUser, TelUser, MailUser, RoleUser, RelationUser, PasswordUser) VALUES (?, ?, ?, 0, ?, ?)";
+  "INSERT INTO User (NameUser, TelUser, MailUser, RoleUser, RelationUser, PasswordUser) VALUES (?, ?, ?, 0, ?, ?)";
             bdd.query(
                 createUser,
                 [NameUser, TelUser, MailUser, RelationUser, securedPassword],
@@ -119,14 +118,11 @@ bdd.query(modifyUser, [req.body.NameUser, req.body.TelUser, req.body.MailUser, r
 // Supprimer un utilisateur (on récupère l'id quand on est connecté)
 router.delete("/DeleteUser/:IdUser", authenticateToken,(req, res) => {
 const deleteUser = "DELETE FROM User WHERE IdUser=?"
-if (typeof req.body.IdUser !== "number") {
-    return res.status(400).json({ message: "Message trop long" });
-} else { 
+
 bdd.query(deleteUser, [req.params.IdUser], (err, result) => {
     if(err) throw err;
     res.send({ message: "User supprimé avec succès"});
 })
-}
 })
 
 // Récupérer les informations d'un utilisateur par son IdUser
@@ -145,8 +141,7 @@ bdd.query(getUser, [req.params.IdUser], (err, result) => {
 
 router.post("/Login", async (req, res) => {
     const queryUser = "SELECT * FROM User WHERE MailUser =?";
-    console.log(req.body.MailUser)
-    console.log(req.body.PasswordUser)
+
     bdd.query(queryUser, [req.body.MailUser], async (err, resultUser) => {
         if (err) throw err;
         if (resultUser.length === 0) {
@@ -205,9 +200,7 @@ router.post("/SendMail", async (req, res) => {
                 subject: "Récupération de votre mot de passe",
                 text: `Bonjour,\n\nVoici le lien pour réinitialiser votre mot de passe : ${resetLink}\n\nCe lien est valable pendant 5 minutes.\n\nCordialement,\nLoreleï et Thomas, mari et femme `
             });
-            
-            console.log("Message sent: %s", info.messageId, resetLink);
-            if (info.messageId) {
+                        if (info.messageId) {
                 return res.status(200).json({ message: "Mail envoyé" });
             }
         }

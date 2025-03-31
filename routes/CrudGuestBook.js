@@ -12,7 +12,6 @@ const SECRET_KEY = process.env.SECRET_KEY ;
 
 const authenticateToken = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1];
-    console.log('token' + token);
     if (!token) return res.status(401).json({ error: 'Token manquant' });
 
     try {
@@ -33,7 +32,6 @@ const authenticateToken = (req, res, next) => {
 router.post("/AddMessage",authenticateToken, (req, res) => {
     const createMessage = "INSERT INTO GuestBook (TextGuestBook, IdUser) VALUES (?,?)"
     bdd.query(createMessage, [req.body.TextGuestBook, req.body.IdUser], (err, result) => {
-        console.log(req.body.TextGuestBook, req.body.IdUser)
         if(err) throw err;
         res.send({ message: "Message ajouté avec succès"});
     })
