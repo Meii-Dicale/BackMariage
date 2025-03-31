@@ -69,8 +69,8 @@ router.post("/AddFavorite", (req, res) => {
 // Récupérer les photos en favoris d'un utilisateur
 
 router.get("/GetUserFavorite/:IdUser", (req, res) => {
-    const getUserFavorite = "SELECT Favoris.IdFavoris, Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser INNER JOIN Favoris ON Media.IdMedia = Favoris.IdMedia WHERE User.IdUser=? AND Favoris.IdUser =?"
-    bdd.query(getUserFavorite, [req.params.IdUser, req.params.IdUser], (err, result) => {
+    const getUserFavorite = "SELECT Favoris.IdFavoris, Media.PathMedia, Media.IdMedia, Media.IdUser, Media.NameMedia ,User.NameUser, User.RoleUser FROM Media INNER JOIN User ON Media.IdUser = User.IdUser INNER JOIN Favoris ON Media.IdMedia = Favoris.IdMedia WHERE  Favoris.IdUser =?"
+    bdd.query(getUserFavorite, [req.params.IdUser], (err, result) => {
         if(err) throw err;  
         res.send(result);
     })
